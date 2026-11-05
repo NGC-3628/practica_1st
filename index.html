@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz de Gramática y Vocabulario</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 font-sans p-4 md:p-8">
+    <div id="root" class="max-w-3xl mx-auto"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const quizData = {
+            adverbs: {
+                title: "Adverbs of Frequency",
+                questions: [
+                    { q: "I go to the gym _____ a week.", options: ["always", "sometimes", "once", "hardly ever"], a: "once", exp: "Usamos 'once' (una vez) para indicar la frecuencia exacta en una semana." },
+                    { q: "She _____ eats vegetables because she hates them.", options: ["usually", "never", "often", "always"], a: "never", exp: "Si las odia (hates them), la frecuencia lógica es 0% ('never')." },
+                    { q: "We brush our teeth _____ day.", options: ["every", "twice", "always", "usually"], a: "every", exp: "'Every day' significa 'todos los días'. Es la estructura correcta." },
+                    { q: "How _____ do you visit your grandparents?", options: ["always", "never", "often", "sometimes"], a: "often", exp: "La pregunta estructurada para pedir frecuencia es 'How often...?' (¿Qué tan seguido...?)." },
+                    { q: "They go on vacation _____ a year.", options: ["twice", "every", "always", "sometimes"], a: "twice", exp: "'Twice' significa 'dos veces'. Es la expresión correcta de frecuencia exacta." },
+                    { q: "I _____ do my homework after school. I never miss a day!", options: ["once", "twice", "always", "hardly ever"], a: "always", exp: "Si nunca falta un día ('never miss a day'), significa que 'siempre' (always) lo hace." },
+                    { q: "My brother _____ ever cleans his room; it's a mess!", options: ["hardly", "always", "often", "every"], a: "hardly", exp: "La expresión completa es 'hardly ever' (casi nunca)." },
+                    { q: "I _____ eat pizza, but not every day. Maybe two days a month.", options: ["every", "sometimes", "never", "always"], a: "sometimes", exp: "Si lo hace un par de días al mes, la frecuencia es ocasional ('sometimes')." },
+                    { q: "I drink a glass of milk _____ morning.", options: ["usually", "often", "always", "every"], a: "every", exp: "'Every morning' significa 'todas las mañanas'." },
+                    { q: "He is _____ late for school. He is very punctual!", options: ["always", "never", "often", "usually"], a: "never", exp: "Si es muy puntual, 'nunca' (never) llega tarde." },
+                    { q: "We go to the movies _____ a month.", options: ["once", "always", "never", "usually"], a: "once", exp: "'Once' indica la frecuencia exacta de 'una vez' al mes." },
+                    { q: "She _____ reads books, she prefers watching TV.", options: ["hardly ever", "always", "usually", "often"], a: "hardly ever", exp: "Si prefiere ver la televisión, 'casi nunca' (hardly ever) lee libros." },
+                    { q: "I _____ play video games on weekends. It's my normal routine.", options: ["usually", "every", "once", "twice"], a: "usually", exp: "Si es una rutina normal, lo hace 'usualmente' (usually)." }
+                ]
+            },
+            thereisare: {
+                title: "There is / There are",
+                questions: [
+                    { q: "_____ an apple on the table.", options: ["There are", "There is", "Is there", "Are there"], a: "There is", exp: "'an apple' es singular (una manzana), así que usamos 'There is'." },
+                    { q: "_____ three dogs playing in the park.", options: ["There is", "Is there", "There are", "Are there"], a: "There are", exp: "'three dogs' es plural, por lo que usamos 'There are'." },
+                    { q: "_____ only one ticket left for the concert.", options: ["There are", "Are there", "Is there", "There is"], a: "There is", exp: "'one ticket' es singular, requiere 'There is'." },
+                    { q: "_____ five cars parked in the garage.", options: ["There is", "There are", "Is there", "Are there"], a: "There are", exp: "'five cars' es plural, requiere 'There are'." },
+                    { q: "_____ a big tree in my garden.", options: ["There are", "Are there", "There is", "Is there"], a: "There is", exp: "'a big tree' es singular (un árbol), usamos 'There is'." },
+                    { q: "_____ many books on the shelf.", options: ["There is", "There are", "Is there", "Are there"], a: "There are", exp: "'many books' (muchos libros) es plural, usamos 'There are'." },
+                    { q: "_____ a cat under the bed?", options: ["Is there", "Are there", "There is", "There are"], a: "Is there", exp: "Es una pregunta sobre un objeto singular ('a cat'), usamos 'Is there'." },
+                    { q: "_____ two pencils in my pencil case.", options: ["There is", "Is there", "There are", "Are there"], a: "There are", exp: "'two pencils' es plural, usamos 'There are'." },
+                    { q: "_____ an elephant at the zoo.", options: ["There are", "There is", "Is there", "Are there"], a: "There is", exp: "'an elephant' es singular, usamos 'There is'." },
+                    { q: "_____ four windows in my bedroom.", options: ["There is", "There are", "Is there", "Are there"], a: "There are", exp: "'four windows' es plural, usamos 'There are'." },
+                    { q: "_____ any milk in the fridge?", options: ["Are there", "There is", "There are", "Is there"], a: "Is there", exp: "'milk' (leche) es un sustantivo incontable, y los incontables se tratan como singulares ('Is there')." },
+                    { q: "_____ a lot of students in the classroom.", options: ["There is", "Is there", "There are", "Are there"], a: "There are", exp: "'students' está en plural, por lo que usamos 'There are'." }
+                ]
+            },
+            prepositions: {
+                title: "Prepositions of Place",
+                questions: [
+                    { q: "The book is _____ the table.", options: ["inside", "on", "behind", "left"], a: "on", exp: "'on' significa sobre o encima de una superficie." },
+                    { q: "The keys are _____ my pocket.", options: ["in", "on", "next to", "behind"], a: "in", exp: "'in' significa adentro de un espacio cerrado (como un bolsillo)." },
+                    { q: "The cat is hiding _____ the sofa. I can't see it!", options: ["on", "inside", "behind", "left"], a: "behind", exp: "Si no lo puedes ver porque está escondido, está 'detrás' (behind) del sofá." },
+                    { q: "The supermarket is _____ the bank.", options: ["inside", "next to", "in", "on"], a: "next to", exp: "'next to' significa 'al lado de'." },
+                    { q: "Go straight and then turn to the _____ at the stop sign.", options: ["right", "in", "on", "behind"], a: "right", exp: "'turn to the right' es la instrucción para dar vuelta a la derecha." },
+                    { q: "Put the toys _____ the toy box.", options: ["on", "behind", "inside", "next to"], a: "inside", exp: "'inside' significa en el interior o adentro (de la caja)." },
+                    { q: "The library is on your _____.", options: ["left", "inside", "on", "behind"], a: "left", exp: "La frase correcta para dar direcciones es 'on your left' (a tu izquierda)." },
+                    { q: "Put the milk _____ the fridge.", options: ["on", "next to", "behind", "in"], a: "in", exp: "La leche va 'adentro' (in) del refrigerador." },
+                    { q: "My shoes are _____ the bed.", options: ["inside", "next to", "on", "in"], a: "next to", exp: "Tiene sentido que los zapatos estén 'al lado' (next to) de la cama." },
+                    { q: "The teacher is standing _____ the whiteboard.", options: ["inside", "in", "next to", "on"], a: "next to", exp: "El maestro está de pie 'al lado de' (next to) la pizarra." },
+                    { q: "There is a beautiful picture _____ the wall.", options: ["in", "on", "inside", "behind"], a: "on", exp: "Los objetos colgados en superficies verticales (paredes) usan 'on'." },
+                    { q: "The dog is sleeping _____ the doghouse.", options: ["on", "next to", "behind", "inside"], a: "inside", exp: "El perro duerme 'adentro' (inside) de su casa." },
+                    { q: "My best friend sits _____ me in math class.", options: ["in", "inside", "on", "next to"], a: "next to", exp: "Los compañeros se sientan 'al lado' (next to) uno del otro." }
+                ]
+            },
+            places: {
+                title: "Places in Town",
+                questions: [
+                    { q: "Let's go to the _____ to watch the new Marvel film.", options: ["mall", "stadium", "grocery store", "movie theater"], a: "movie theater", exp: "Las películas (films) se ven en el cine ('movie theater')." },
+                    { q: "I need to buy milk and eggs at the _____.", options: ["skatepark", "grocery store", "bowling alley", "clothing store"], a: "grocery store", exp: "Los abarrotes, como huevos y leche, se compran en la 'grocery store'." },
+                    { q: "We are going to the _____ to buy new shirts and jeans.", options: ["stadium", "mall", "clothing store", "bowling alley"], a: "clothing store", exp: "La ropa (camisas y pantalones) se compra en la 'clothing store' (tienda de ropa)." },
+                    { q: "The soccer game is at the _____ tonight.", options: ["movie theater", "skatepark", "mall", "stadium"], a: "stadium", exp: "Los partidos de fútbol se juegan en un estadio ('stadium')." },
+                    { q: "I want to buy shoes, eat at the food court, and walk around the _____.", options: ["mall", "bowling alley", "skatepark", "grocery store"], a: "mall", exp: "Un 'mall' (centro comercial) tiene área de comida, tiendas de zapatos y espacio para pasear." },
+                    { q: "Bring your skateboard! We are going to the _____.", options: ["stadium", "skatepark", "clothing store", "movie theater"], a: "skatepark", exp: "Las patinetas (skateboards) se usan en el 'skatepark'." },
+                    { q: "Let's play a game and roll some balls at the _____.", options: ["mall", "grocery store", "stadium", "bowling alley"], a: "bowling alley", exp: "Lanzar bolas (roll some balls) es el deporte que se practica en el 'bowling alley' (boliche)." },
+                    { q: "You can buy fresh fruit and vegetables at the _____.", options: ["clothing store", "skatepark", "grocery store", "movie theater"], a: "grocery store", exp: "Las frutas y verduras frescas se compran en el mercado o 'grocery store'." },
+                    { q: "I need a new jacket for winter. Let's go to the _____.", options: ["clothing store", "stadium", "grocery store", "bowling alley"], a: "clothing store", exp: "Una chamarra (jacket) se compra en una tienda de ropa ('clothing store')." },
+                    { q: "Thousands of people watched the concert at the huge _____.", options: ["bowling alley", "skatepark", "mall", "stadium"], a: "stadium", exp: "Los conciertos masivos se llevan a cabo en un 'stadium'." },
+                    { q: "We ate popcorn while watching the film at the _____.", options: ["grocery store", "movie theater", "clothing store", "stadium"], a: "movie theater", exp: "Comemos palomitas (popcorn) viendo películas en el cine ('movie theater')." },
+                    { q: "He loves doing tricks on his board at the _____.", options: ["mall", "skatepark", "bowling alley", "grocery store"], a: "skatepark", exp: "Hacer trucos con la tabla se hace en el 'skatepark'." }
+                ]
+            }
+        };
+
+        function App() {
+            const [view, setView] = useState('menu'); 
+            const [topic, setTopic] = useState(null);
+            const [currentQ, setCurrentQ] = useState(0);
+            const [correct, setCorrect] = useState(0);
+            const [wrong, setWrong] = useState(0);
+            const [selected, setSelected] = useState(null);
+            const [isAnswered, setIsAnswered] = useState(false);
+            const [session, setSession] = useState(null);
+
+            const startQuiz = (key) => {
+                if (session && session.topic === key && (Date.now() - session.time < 10000)) {
+                    setTopic(session.topic);
+                    setCurrentQ(session.currentQ);
+                    setCorrect(session.correct);
+                    setWrong(session.wrong);
+                } else {
+                    setTopic(key);
+                    setCurrentQ(0);
+                    setCorrect(0);
+                    setWrong(0);
+                }
+                setSession(null);
+                setSelected(null);
+                setIsAnswered(false);
+                setView('quiz');
+            };
+
+            const backToMenu = () => {
+                setSession({
+                    topic, currentQ, correct, wrong, time: Date.now()
+                });
+                setView('menu');
+            };
+
+            const handleAnswer = (option) => {
+                if (isAnswered) return;
+                setSelected(option);
+                setIsAnswered(true);
+                const actualAnswer = quizData[topic].questions[currentQ].a;
+                if (option === actualAnswer) {
+                    setCorrect(prev => prev + 1);
+                } else {
+                    setWrong(prev => prev + 1);
+                }
+            };
+
+            const nextQuestion = () => {
+                const totalQuestions = quizData[topic].questions.length;
+                if (currentQ < totalQuestions - 1) {
+                    setCurrentQ(prev => prev + 1);
+                    setSelected(null);
+                    setIsAnswered(false);
+                } else {
+                    setView('results');
+                }
+            };
+
+            if (view === 'menu') {
+                return (
+                    <div className="bg-white p-8 rounded-xl shadow-lg mt-10">
+                        <h1 className="text-3xl font-bold text-center mb-2">Quiz de Gramática y Vocabulario</h1>
+                        <p className="text-center text-gray-500 mb-8">Selecciona un tema para comenzar.</p>
+                        
+                        {session && (Date.now() - session.time < 10000) && (
+                            <div className="bg-yellow-100 text-yellow-800 p-3 rounded-lg text-sm text-center mb-4 animate-pulse">
+                                Tienes progreso guardado en <b>{quizData[session.topic].title}</b> (Se borrará en unos segundos).
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {Object.entries(quizData).map(([key, data]) => (
+                                <button 
+                                    key={key} 
+                                    onClick={() => startQuiz(key)}
+                                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-4 px-6 rounded-lg transition shadow-md"
+                                >
+                                    {data.title}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                );
+            }
+
+            if (view === 'results') {
+                const totalQuestions = quizData[topic].questions.length;
+                return (
+                    <div className="bg-white p-8 rounded-xl shadow-lg mt-10 text-center">
+                        <h2 className="text-3xl font-bold mb-4">¡Has terminado!</h2>
+                        <div className="text-xl mb-6">
+                            <p className="text-green-600 font-bold">Correctas: {correct}</p>
+                            <p className="text-red-600 font-bold">Incorrectas: {wrong}</p>
+                            <p className="text-gray-700 mt-4 text-2xl">Puntaje: {Math.round((correct / totalQuestions) * 100)}%</p>
+                        </div>
+                        <button 
+                            onClick={() => { setSession(null); setView('menu'); }}
+                            className="bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-8 rounded-lg"
+                        >
+                            Volver al Menú Principal
+                        </button>
+                    </div>
+                );
+            }
+
+            const currentData = quizData[topic].questions[currentQ];
+            const totalQuestions = quizData[topic].questions.length;
+
+            return (
+                <div className="bg-white p-6 md:p-8 rounded-xl shadow-lg mt-10">
+                    <div className="flex justify-between items-center mb-6">
+                        <button onClick={backToMenu} className="text-slate-500 hover:text-slate-800 font-semibold flex items-center">
+                            ← Volver al Menú
+                        </button>
+                        <div className="text-sm font-bold flex gap-4">
+                            <span className="text-green-600">✔ {correct}</span>
+                            <span className="text-red-600">✖ {wrong}</span>
+                        </div>
+                    </div>
+
+                    <div className="mb-6">
+                        <span className="text-indigo-600 font-bold text-sm uppercase tracking-wide">
+                            {quizData[topic].title} - Pregunta {currentQ + 1} de {totalQuestions}
+                        </span>
+                        <h2 className="text-2xl font-semibold mt-2">{currentData.q}</h2>
+                    </div>
+
+                    <div className="space-y-3 mb-6">
+                        {currentData.options.map((opt, i) => {
+                            let btnClass = "w-full text-left font-medium py-3 px-5 rounded-lg border-2 transition-all duration-200 ";
+                            
+                            if (!isAnswered) {
+                                btnClass += "border-slate-200 hover:border-indigo-500 hover:bg-indigo-50 text-slate-700";
+                            } else {
+                                if (opt === currentData.a) {
+                                    btnClass += "border-green-500 bg-green-50 text-green-800"; // Correcta
+                                } else if (opt === selected) {
+                                    btnClass += "border-red-500 bg-red-50 text-red-800"; // Seleccionada incorrecta
+                                } else {
+                                    btnClass += "border-slate-100 bg-slate-50 text-slate-400 opacity-60"; // Demás opciones
+                                }
+                            }
+
+                            return (
+                                <button key={i} onClick={() => handleAnswer(opt)} className={btnClass} disabled={isAnswered}>
+                                    {opt}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {isAnswered && (
+                        <div className={`p-4 rounded-lg mb-6 ${selected === currentData.a ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900'}`}>
+                            <p className="font-bold text-lg">{selected === currentData.a ? '¡Correcto!' : 'Incorrecto'}</p>
+                            <p className="mt-1">{currentData.exp}</p>
+                        </div>
+                    )}
+
+                    {isAnswered && (
+                        <button onClick={nextQuestion} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                            {currentQ === totalQuestions - 1 ? 'Ver Resultados' : 'Siguiente Pregunta'}
+                        </button>
+                    )}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
